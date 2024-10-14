@@ -49,7 +49,7 @@ local function update()
     local signNsid = vim.api.nvim_create_namespace(sign.group)
     local mark = vim.api.nvim_buf_get_extmark_by_id(
         bufnr, signNsid, sign.id, { details = true })
-    if mark[1] + 1 ~= line then
+    if not mark or mark[1] + 1 ~= line then
         deletePreviousMark()
         return
     end
