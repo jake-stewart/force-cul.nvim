@@ -1,6 +1,6 @@
 # force-cul.nvim
 
-various sign plugins show appropriate cursorline highlight for signs.
+various sign plugins fail to show appropriate cursorline highlight for signs.
 
 this plugin should make all extmark signs obey your cursorline highlight.
 
