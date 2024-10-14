@@ -24,3 +24,11 @@ cursorline highlight.
 }
 ```
 
+### api
+you don't need to worry about the api, it all works automatically.
+
+```lua
+-- forces the sign hl to update
+-- this is useful if you programatically change CursorLineSign highlight
+require("force-cul").forceUpdate()
+```
