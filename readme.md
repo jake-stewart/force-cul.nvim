@@ -1,10 +1,8 @@
 # force-cul.nvim
 
-various sign plugins and even built in lsp fail to
-show appropriate cursorline highlight for signs.
+various sign plugins show appropriate cursorline highlight for signs.
 
-this plugin should make all extmark signs obey your
-cursorline highlight.
+this plugin should make all extmark signs obey your cursorline highlight.
 
 #### before
 <img width="168" alt="before" src="https://github.com/user-attachments/assets/384d69c8-8eb7-459a-89ec-d45f69e7d092">
