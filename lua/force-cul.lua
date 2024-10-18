@@ -54,9 +54,7 @@ function M.setup()
     vim.api.nvim_create_autocmd("ColorScheme", {
         pattern = "*",
         group = "ForceCul",
-        callback = function()
-            M.forceUpdate()
-        end
+        callback = M.forceUpdate
     })
 end
 
