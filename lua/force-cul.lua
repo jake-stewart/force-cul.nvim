@@ -11,7 +11,7 @@ local state = {
 
 local function deletePreviousMark()
     if state.prevMarkId then
-        vim.api.nvim_buf_del_extmark(
+        pcall(vim.api.nvim_buf_del_extmark,
             state.prevBufnr, state.nsid, state.prevMarkId)
     end
     state.prevMarkId = nil
