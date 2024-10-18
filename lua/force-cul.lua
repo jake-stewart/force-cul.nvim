@@ -1,76 +1,14 @@
-local forceCulGroup = "ForceCul"
+local M = {}
 
-local state = {
-    prevMarkId = nil,
-    prevSignId = nil,
-    prevSignGroup = nil,
-    prevLine = nil,
-    prevBufnr = nil,
-    nsid = nil,
-}
+local lookup = {}
 
-local function deletePreviousMark()
-    if state.prevMarkId then
-        pcall(vim.api.nvim_buf_del_extmark,
-            state.prevBufnr, state.nsid, state.prevMarkId)
-    end
-    state.prevMarkId = nil
-    state.prevSignId = nil
-    state.prevSignGroup = nil
-    state.prevLine = nil
-    state.prevBufnr = nil
-end
-
-local function update()
-    local line = vim.fn.line(".")
-    local bufnr = vim.fn.bufnr()
-    local result = vim.fn.sign_getplaced(bufnr, {
-        group = "*",
-        lnum = line
-    })[1]
-    local sign
-    for _, candidate in ipairs(result.signs) do
-        if candidate.group ~= forceCulGroup then
-            sign = candidate
-            break
-        end
-    end
-    if (not sign) or (not sign.group) or (sign.group == "") then
-        deletePreviousMark()
-        return
-    end
-    if sign.group == state.prevSignGroup
-        and line == state.prevLine
-        and bufnr == state.prevBufnr
-        and sign.id == state.prevSignId
-    then
-        return
-    end
-    local signNsid = vim.api.nvim_create_namespace(sign.group)
-    local mark = vim.api.nvim_buf_get_extmark_by_id(
-        bufnr, signNsid, sign.id, { details = true })
-    if not mark or mark[1] ~= line - 1 then
-        deletePreviousMark()
-        return
-    end
-    local details = mark[3]
-    if not details.sign_text
-        or details.sign_text == ""
-    then
-        deletePreviousMark()
-        return
-    end
-    deletePreviousMark()
-    state.prevLine = line
-    state.prevBufnr = bufnr
-    state.prevSignGroup = sign.group
-    state.prevSignId = sign.id
+local function createHl(groupName)
     local newHl = {}
-    if details.sign_hl_group then
-        local hl = vim.api.nvim_get_hl(0, {
-            name = details.sign_hl_group,
-            link = false,
-        })
+    local hl = vim.api.nvim_get_hl(0, {
+        name = groupName,
+        link = false,
+    })
+    if hl then
         for k, v in pairs(hl) do
             newHl[k] = v
         end
@@ -84,32 +22,43 @@ local function update()
             newHl[k] = v
         end
     end
-    local newHlGroup = details.sign_hl_group .. "ForceCul"
-    vim.api.nvim_set_hl(0, newHlGroup, newHl)
-    local opts = {
-        sign_text = details.sign_text,
-        sign_hl_group = newHlGroup,
-        priority = math.min(sign.priority + 1, 65535)
-    }
-    state.prevMarkId = vim.api.nvim_buf_set_extmark(
-        bufnr, state.nsid, line - 1, 0, opts)
-end
-
-local M = {}
-
-function M.setup()
-    vim.api.nvim_create_augroup(forceCulGroup, { clear = true })
-    state.nsid = vim.api.nvim_create_namespace(forceCulGroup)
-    vim.api.nvim_create_autocmd("SafeState", {
-        group = forceCulGroup,
-        pattern = "*",
-        callback = update
-    })
+    local culhl = groupName .. "ForceCul"
+    vim.api.nvim_set_hl(0, culhl, newHl)
+    lookup[groupName] = culhl
+    return culhl
 end
 
 function M.forceUpdate()
-    deletePreviousMark()
-    update()
+    for k in pairs(lookup) do
+        createHl(k)
+    end
+end
+
+function M.setup()
+    local origSetmark = vim.api.nvim_buf_set_extmark
+    function vim.api.nvim_buf_set_extmark(buffer, ns_id, line, col, opts)
+        opts = opts or {}
+        if opts.sign_text and not opts.cursorline_hl_group then
+            local culhl
+            local groupName = opts.sign_hl_group or opts.hl_group
+            if groupName then
+                culhl = lookup[groupName] or createHl(groupName)
+            else
+                culhl = "CursorLineSign"
+            end
+            opts.cursorline_hl_group = culhl
+        end
+        return origSetmark(buffer, ns_id, line, col, opts)
+    end
+
+    vim.api.nvim_create_augroup("ForceCul", { clear = true })
+    vim.api.nvim_create_autocmd("ColorScheme", {
+        pattern = "*",
+        group = "ForceCul",
+        callback = function()
+            M.forceUpdate()
+        end
+    })
 end
 
 return M
