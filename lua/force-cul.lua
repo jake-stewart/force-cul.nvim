@@ -37,8 +37,7 @@ end
 function M.setup()
     local origSetmark = vim.api.nvim_buf_set_extmark
     function vim.api.nvim_buf_set_extmark(buffer, ns_id, line, col, opts)
-        opts = opts or {}
-        if opts.sign_text and not opts.cursorline_hl_group then
+        if opts and opts.sign_text and not opts.cursorline_hl_group then
             local culhl
             local groupName = opts.sign_hl_group or opts.hl_group
             if groupName then
