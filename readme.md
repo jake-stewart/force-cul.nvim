@@ -1,17 +1,16 @@
 # force-cul.nvim
 
-various sign plugins fail to show appropriate cursorline highlight for signs.
+This plugin ensures that signs have a cursorline highlight.
 
-this plugin should make all extmark signs obey your cursorline highlight.
-
-#### before
-<img width="168" alt="before" src="https://github.com/user-attachments/assets/384d69c8-8eb7-459a-89ec-d45f69e7d092">
-
-#### after
-<img width="175" alt="after" src="https://github.com/user-attachments/assets/f6e8fe7e-dc5e-4471-93af-2618e00d233d">
+#### Before
+<img width="200" alt="before" src="https://github.com/user-attachments/assets/dc8fd2e1-d9ca-4258-b7af-81314d87daa9">
 
 
-### setup (lazy.nvim)
+#### After
+<img width="200" alt="after" src="https://github.com/user-attachments/assets/8f7014b3-6d82-413b-adad-3f0053727f0d">
+
+
+### Setup (lazy.nvim)
 
 ```lua
 {
@@ -22,11 +21,11 @@ this plugin should make all extmark signs obey your cursorline highlight.
 }
 ```
 
-### api
-you don't need to worry about the api, it all works automatically.
+### API
+You can ignore this section. The plugin works automatically.
 
 ```lua
--- forces the sign hl to update
--- this is useful if you programatically change CursorLineSign highlight
+-- Force update the highlight groups.
+-- This is useful if you programatically change the CursorLineSign highlight.
 require("force-cul").forceUpdate()
 ```
